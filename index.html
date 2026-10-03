@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <title>LER PLACA - 244</title>
+
+  <!-- OCR no navegador -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+    button,input{font:inherit}
+    button{cursor:pointer}
+
+    .camera{position:fixed;inset:0;background:#000;display:flex;flex-direction:column}
+    .header{height:58px;flex:none;padding:0 15px;display:flex;align-items:center;justify-content:space-between;background:#090a0c;border-bottom:1px solid #292d33}
+    .title{font-size:13px;font-weight:1000;letter-spacing:.8px}
+    .close{width:38px;height:38px;border:0;border-radius:50%;background:#24272c;color:#fff;font-size:20px}
+
+    .view{position:relative;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}
+    #video{display:block;width:100%;height:100%;object-fit:cover;background:#000}
+
+    .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+    .frame{
+      width:82%;
+      max-width:340px;
+      aspect-ratio:2.5/1;
+      border:3px solid #ff1a1a;
+      border-radius:14px;
+      box-shadow:0 0 0 9999px rgba(0,0,0,.38),0 0 25px rgba(255,0,0,.65)
+    }
+    .instruction{
+      position:absolute;bottom:34px;left:20px;right:20px;text-align:center;
+      color:#fff;font-size:11px;font-weight:800;text-shadow:0 2px 5px #000
+    }
+
+    .message{
+      position:absolute;left:20px;right:20px;top:20px;padding:12px;border-radius:12px;
+      background:#15181c;border:1px solid #e60000;color:#fff;text-align:center;
+      font-size:11px;display:none;z-index:5
+    }
+    .message.show{display:block}
+
+    .footer{
+      flex:none;background:#090a0c;padding:12px 20px 24px;
+      display:flex;justify-content:center;align-items:center;gap:14px;
+      border-top:1px solid #292d33
+    }
+    .capture{
+      width:72px;height:72px;border-radius:50%;border:5px solid #fff;
+      background:#e60000;box-shadow:0 0 0 5px rgba(255,255,255,.15)
+    }
+
+    .processing{
+      position:absolute;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);
+      display:none;align-items:center;justify-content:center;z-index:20;padding:25px
+    }
+    .processing.show{display:flex}
+    .processing-box{
+      width:min(340px,100%);background:#15181c;border:1px solid #e60000;
+      border-radius:15px;padding:18px;text-align:center
+    }
+    .processing-title{font-size:14px;font-weight:1000}
+    .processing-text{margin-top:7px;color:#aeb4bd;font-size:10px}
+    .progress{height:5px;background:#2a2e34;border-radius:99px;overflow:hidden;margin-top:14px}
+    .progress-bar{height:100%;width:35%;background:#e60000;border-radius:99px;transition:width .25s}
+
+    .confirm{
+      position:absolute;inset:0;background:rgba(0,0,0,.9);display:none;z-index:30;
+      align-items:center;justify-content:center;padding:20px
+    }
+    .confirm.show{display:flex}
+    .confirm-box{
+      width:min(360px,100%);background:#111419;border:1px solid #30353d;
+      border-radius:16px;padding:17px
+    }
+    .confirm-title{font-size:13px;font-weight:1000}
+    .confirm-sub{font-size:9px;color:#9ca3af;margin-top:4px}
+    .plate-input{
+      width:100%;height:50px;margin-top:14px;text-align:center;
+      text-transform:uppercase;letter-spacing:4px;font-size:23px;font-weight:1000;
+      background:#050505;border:1px solid #555d67;border-radius:10px;color:#fff;outline:none
+    }
+    .plate-input:focus{border-color:#e60000}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .action{
+      height:43px;border-radius:10px;font-weight:900;font-size:11px;border:1px solid #3b4149;
+      background:#24272c;color:#fff
+    }
+    .action.primary{background:#e60000;border-color:#ff2222}
+  </style>
+</head>
+
+<body>
+<div class="camera">
+
+  <header class="header">
+    <div class="title">📷 LER PLACA</div>
+    <button class="close" type="button" onclick="fechar()">×</button>
+  </header>
+
+  <main class="view">
+    <video id="video" autoplay playsinline muted></video>
+
+    <div class="overlay">
+      <div class="frame"></div>
+      <div class="instruction">POSICIONE A PLACA DENTRO DA ÁREA VERMELHA</div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div id="processing" class="processing">
+      <div class="processing-box">
+        <div class="processing-title">LENDO PLACA...</div>
+        <div id="processingText" class="processing-text">Processando a imagem.</div>
+        <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+      </div>
+    </div>
+
+    <div id="confirm" class="confirm">
+      <div class="confirm-box">
+        <div class="confirm-title">CONFIRME A PLACA</div>
+        <div class="confirm-sub">Confira a leitura antes de consultar o cadastro.</div>
+        <input id="plateInput" class="plate-input" maxlength="8" autocomplete="off" spellcheck="false">
+        <div class="actions">
+          <button class="action" type="button" onclick="refazer()">TIRAR NOVA FOTO</button>
+          <button class="action primary" type="button" onclick="enviarPlaca()">CONFIRMAR</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <button class="capture" type="button" onclick="capturar()" aria-label="Capturar placa"></button>
+  </footer>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const token = params.get("token") || "";
+
+let stream = null;
+let trabalhando = false;
+
+const video = document.getElementById("video");
+const message = document.getElementById("message");
+const processing = document.getElementById("processing");
+const processingText = document.getElementById("processingText");
+const progressBar = document.getElementById("progressBar");
+const confirmBox = document.getElementById("confirm");
+const plateInput = document.getElementById("plateInput");
+
+function mostrarMensagem(texto){
+  message.textContent = texto;
+  message.classList.add("show");
+}
+
+function esconderMensagem(){
+  message.textContent = "";
+  message.classList.remove("show");
+}
+
+async function iniciarCamera(){
+  esconderMensagem();
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    mostrarMensagem("Este navegador não permite acesso à câmera. Abra esta página em HTTPS no Chrome ou Safari.");
+    return;
+  }
+
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio:false,
+      video:{
+        facingMode:{ideal:"environment"},
+        width:{ideal:1920},
+        height:{ideal:1080}
+      }
+    });
+
+    video.srcObject = stream;
+    await video.play();
+  }catch(error){
+    console.error(error);
+
+    let msg = "Não foi possível acessar a câmera.";
+
+    if(error && error.name === "NotAllowedError"){
+      msg = "A câmera foi bloqueada. Permita o acesso à câmera nas configurações do navegador.";
+    }else if(error && error.name === "NotFoundError"){
+      msg = "Nenhuma câmera foi encontrada neste aparelho.";
+    }else if(error && error.name === "NotReadableError"){
+      msg = "A câmera está sendo usada por outro aplicativo.";
+    }
+
+    mostrarMensagem(msg);
+  }
+}
+
+function pararCamera(){
+  if(stream){
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  video.srcObject = null;
+}
+
+function fechar(){
+  pararCamera();
+
+  try{
+    if(window.opener && !window.opener.closed){
+      window.close();
+    }else{
+      history.back();
+    }
+  }catch(e){
+    history.back();
+  }
+}
+
+function normalizarPlaca(texto){
+  return String(texto || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g,"")
+    .trim();
+}
+
+function extrairPlaca(texto){
+  const limpo = normalizarPlaca(texto);
+
+  // Formato Mercosul: ABC1D23
+  const mercosul = limpo.match(/[A-Z]{3}[0-9][A-Z][0-9]{2}/g);
+
+  // Formato antigo: ABC1234
+  const antigo = limpo.match(/[A-Z]{3}[0-9]{4}/g);
+
+  if(mercosul && mercosul.length) return mercosul[0];
+  if(antigo && antigo.length) return antigo[0];
+
+  // Tenta qualquer bloco de 7 caracteres alfanuméricos
+  const blocos = limpo.match(/[A-Z0-9]{7}/g) || [];
+
+  for(const bloco of blocos){
+    const letras = (bloco.match(/[A-Z]/g) || []).length;
+    const numeros = (bloco.match(/[0-9]/g) || []).length;
+
+    if(letras >= 2 && numeros >= 2){
+      return bloco;
+    }
+  }
+
+  return limpo.slice(0,8);
+}
+
+function prepararImagem(){
+  if(!video.videoWidth || !video.videoHeight) return null;
+
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+
+  // Recorte aproximado da área vermelha central.
+  const cropWidth = Math.floor(vw * 0.82);
+  const cropHeight = Math.floor(cropWidth / 2.5);
+
+  const sx = Math.max(0, Math.floor((vw - cropWidth) / 2));
+  const sy = Math.max(0, Math.floor((vh - cropHeight) / 2));
+
+  const canvas = document.createElement("canvas");
+
+  // Amplia a imagem para ajudar o OCR.
+  canvas.width = 1400;
+  canvas.height = Math.round(1400 / 2.5);
+
+  const ctx = canvas.getContext("2d", {willReadFrequently:true});
+
+  ctx.drawImage(
+    video,
+    sx, sy, cropWidth, cropHeight,
+    0, 0, canvas.width, canvas.height
+  );
+
+  // Pré-processamento simples para placa.
+  const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const data = imageData.data;
+
+  for(let i=0;i<data.length;i+=4){
+    const gray = (data[i]*0.299) + (data[i+1]*0.587) + (data[i+2]*0.114);
+    const contrast = Math.max(0,Math.min(255,(gray-128)*1.7+128));
+
+    data[i] = contrast;
+    data[i+1] = contrast;
+    data[i+2] = contrast;
+  }
+
+  ctx.putImageData(imageData,0,0);
+
+  return canvas;
+}
+
+async function capturar(){
+  if(trabalhando) return;
+
+  if(!video.videoWidth || !video.videoHeight){
+    mostrarMensagem("A câmera ainda não está pronta.");
+    return;
+  }
+
+  trabalhando = true;
+  esconderMensagem();
+  processing.classList.add("show");
+  progressBar.style.width = "15%";
+  processingText.textContent = "Preparando a imagem...";
+
+  try{
+    const canvas = prepararImagem();
+
+    if(!canvas){
+      throw new Error("Não foi possível capturar a imagem.");
+    }
+
+    progressBar.style.width = "30%";
+    processingText.textContent = "Lendo caracteres da placa...";
+
+    if(typeof Tesseract === "undefined"){
+      throw new Error("O mecanismo de leitura não foi carregado.");
+    }
+
+    const resultado = await Tesseract.recognize(
+      canvas,
+      "eng",
+      {
+        logger: info => {
+          if(info.status === "recognizing text" && typeof info.progress === "number"){
+            const pct = Math.round(info.progress * 60);
+            progressBar.style.width = Math.max(30,Math.min(90,30+pct)) + "%";
+          }
+        }
+      }
+    );
+
+    const texto = resultado && resultado.data ? resultado.data.text : "";
+    const placa = extrairPlaca(texto);
+
+    progressBar.style.width = "100%";
+
+    if(!placa || placa.length < 7){
+      processing.classList.remove("show");
+      trabalhando = false;
+      mostrarMensagem("Não consegui identificar a placa. Aproxime o celular, deixe a placa dentro da área vermelha e tente novamente.");
+      return;
+    }
+
+    plateInput.value = placa.slice(0,8);
+    processing.classList.remove("show");
+    confirmBox.classList.add("show");
+    trabalhando = false;
+
+  }catch(error){
+    console.error("Erro no OCR:",error);
+
+    processing.classList.remove("show");
+    trabalhando = false;
+
+    mostrarMensagem("Não foi possível ler a placa. Tente novamente com a placa bem iluminada e centralizada.");
+  }
+}
+
+function refazer(){
+  confirmBox.classList.remove("show");
+  plateInput.value = "";
+  esconderMensagem();
+}
+
+function enviarPlaca(){
+  const placa = normalizarPlaca(plateInput.value);
+
+  if(!/^[A-Z0-9]{7,8}$/.test(placa)){
+    mostrarMensagem("Informe uma placa válida.");
+    return;
+  }
+
+  if(window.opener && !window.opener.closed){
+    window.opener.postMessage({
+      type:"PLACA_CAPTURADA",
+      token:token,
+      placa:placa
+    },"*");
+
+    pararCamera();
+
+    setTimeout(function(){
+      try{ window.close(); }catch(e){}
+    },150);
+  }else{
+    plateInput.value = placa;
+    mostrarMensagem("Janela principal não encontrada. Use a placa acima no aplicativo.");
+  }
+}
+
+window.addEventListener("pagehide",pararCamera);
+window.addEventListener("beforeunload",pararCamera);
+
+iniciarCamera();
+</script>
+</body>
+</html>
