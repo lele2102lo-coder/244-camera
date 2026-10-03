@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#050505">
   <title>LER PLACA - 244</title>
 
-  <!-- OCR no navegador -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <style>
@@ -25,78 +24,41 @@
 
     .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
     .frame{
-      width:82%;
-      max-width:340px;
-      aspect-ratio:2.5/1;
-      border:3px solid #ff1a1a;
-      border-radius:14px;
+      width:78%;max-width:340px;height:30%;min-height:135px;max-height:185px;
+      border:3px solid #ff1a1a;border-radius:14px;
       box-shadow:0 0 0 9999px rgba(0,0,0,.38),0 0 25px rgba(255,0,0,.65)
     }
-    .instruction{
-      position:absolute;bottom:34px;left:20px;right:20px;text-align:center;
-      color:#fff;font-size:11px;font-weight:800;text-shadow:0 2px 5px #000
-    }
+    .instruction{position:absolute;bottom:34px;left:20px;right:20px;text-align:center;color:#fff;font-size:11px;font-weight:800;text-shadow:0 2px 5px #000}
 
-    .message{
-      position:absolute;left:20px;right:20px;top:20px;padding:12px;border-radius:12px;
-      background:#15181c;border:1px solid #e60000;color:#fff;text-align:center;
-      font-size:11px;display:none;z-index:5
-    }
+    .message{position:absolute;left:20px;right:20px;top:20px;padding:12px;border-radius:12px;background:#15181c;border:1px solid #e60000;color:#fff;text-align:center;font-size:11px;display:none;z-index:5}
     .message.show{display:block}
 
-    .footer{
-      flex:none;background:#090a0c;padding:12px 20px 24px;
-      display:flex;justify-content:center;align-items:center;gap:14px;
-      border-top:1px solid #292d33
-    }
-    .capture{
-      width:72px;height:72px;border-radius:50%;border:5px solid #fff;
-      background:#e60000;box-shadow:0 0 0 5px rgba(255,255,255,.15)
-    }
+    .footer{flex:none;background:#090a0c;padding:12px 20px 24px;display:flex;justify-content:center;align-items:center;gap:14px;border-top:1px solid #292d33}
+    .capture{width:72px;height:72px;border-radius:50%;border:5px solid #fff;background:#e60000;box-shadow:0 0 0 5px rgba(255,255,255,.15)}
 
-    .processing{
-      position:absolute;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);
-      display:none;align-items:center;justify-content:center;z-index:20;padding:25px
-    }
+    .processing{position:absolute;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:20;padding:25px}
     .processing.show{display:flex}
-    .processing-box{
-      width:min(340px,100%);background:#15181c;border:1px solid #e60000;
-      border-radius:15px;padding:18px;text-align:center
-    }
+    .processing-box{width:min(340px,100%);background:#15181c;border:1px solid #e60000;border-radius:15px;padding:18px;text-align:center}
     .processing-title{font-size:14px;font-weight:1000}
     .processing-text{margin-top:7px;color:#aeb4bd;font-size:10px}
     .progress{height:5px;background:#2a2e34;border-radius:99px;overflow:hidden;margin-top:14px}
     .progress-bar{height:100%;width:35%;background:#e60000;border-radius:99px;transition:width .25s}
 
-    .confirm{
-      position:absolute;inset:0;background:rgba(0,0,0,.9);display:none;z-index:30;
-      align-items:center;justify-content:center;padding:20px
-    }
+    .confirm{position:absolute;inset:0;background:rgba(0,0,0,.9);display:none;z-index:30;align-items:center;justify-content:center;padding:20px}
     .confirm.show{display:flex}
-    .confirm-box{
-      width:min(360px,100%);background:#111419;border:1px solid #30353d;
-      border-radius:16px;padding:17px
-    }
+    .confirm-box{width:min(360px,100%);background:#111419;border:1px solid #30353d;border-radius:16px;padding:17px}
     .confirm-title{font-size:13px;font-weight:1000}
-    .confirm-sub{font-size:9px;color:#9ca3af;margin-top:4px}
-    .plate-input{
-      width:100%;height:50px;margin-top:14px;text-align:center;
-      text-transform:uppercase;letter-spacing:4px;font-size:23px;font-weight:1000;
-      background:#050505;border:1px solid #555d67;border-radius:10px;color:#fff;outline:none
-    }
+    .confirm-sub{font-size:9px;color:#9ca3af;margin-top:4px;line-height:1.4}
+    .plate-input{width:100%;height:50px;margin-top:14px;text-align:center;text-transform:uppercase;letter-spacing:4px;font-size:23px;font-weight:1000;background:#050505;border:1px solid #555d67;border-radius:10px;color:#fff;outline:none}
     .plate-input:focus{border-color:#e60000}
     .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-    .action{
-      height:43px;border-radius:10px;font-weight:900;font-size:11px;border:1px solid #3b4149;
-      background:#24272c;color:#fff
-    }
+    .action{height:43px;border-radius:10px;font-weight:900;font-size:11px;border:1px solid #3b4149;background:#24272c;color:#fff}
     .action.primary{background:#e60000;border-color:#ff2222}
   </style>
 </head>
 
 <body>
 <div class="camera">
-
   <header class="header">
     <div class="title">📷 LER PLACA</div>
     <button class="close" type="button" onclick="fechar()">×</button>
@@ -123,7 +85,7 @@
     <div id="confirm" class="confirm">
       <div class="confirm-box">
         <div class="confirm-title">CONFIRME A PLACA</div>
-        <div class="confirm-sub">Confira a leitura antes de consultar o cadastro.</div>
+        <div id="confirmSub" class="confirm-sub">Confira a leitura antes de consultar o cadastro. Se não for identificada, digite manualmente.</div>
         <input id="plateInput" class="plate-input" maxlength="8" autocomplete="off" spellcheck="false">
         <div class="actions">
           <button class="action" type="button" onclick="refazer()">TIRAR NOVA FOTO</button>
@@ -136,7 +98,6 @@
   <footer class="footer">
     <button class="capture" type="button" onclick="capturar()" aria-label="Capturar placa"></button>
   </footer>
-
 </div>
 
 <script>
@@ -145,6 +106,7 @@ const token = params.get("token") || "";
 
 let stream = null;
 let trabalhando = false;
+let worker = null;
 
 const video = document.getElementById("video");
 const message = document.getElementById("message");
@@ -153,6 +115,7 @@ const processingText = document.getElementById("processingText");
 const progressBar = document.getElementById("progressBar");
 const confirmBox = document.getElementById("confirm");
 const plateInput = document.getElementById("plateInput");
+const confirmSub = document.getElementById("confirmSub");
 
 function mostrarMensagem(texto){
   message.textContent = texto;
@@ -186,17 +149,10 @@ async function iniciarCamera(){
     await video.play();
   }catch(error){
     console.error(error);
-
     let msg = "Não foi possível acessar a câmera.";
-
-    if(error && error.name === "NotAllowedError"){
-      msg = "A câmera foi bloqueada. Permita o acesso à câmera nas configurações do navegador.";
-    }else if(error && error.name === "NotFoundError"){
-      msg = "Nenhuma câmera foi encontrada neste aparelho.";
-    }else if(error && error.name === "NotReadableError"){
-      msg = "A câmera está sendo usada por outro aplicativo.";
-    }
-
+    if(error && error.name === "NotAllowedError") msg = "A câmera foi bloqueada. Permita o acesso à câmera nas configurações do navegador.";
+    else if(error && error.name === "NotFoundError") msg = "Nenhuma câmera foi encontrada neste aparelho.";
+    else if(error && error.name === "NotReadableError") msg = "A câmera está sendo usada por outro aplicativo.";
     mostrarMensagem(msg);
   }
 }
@@ -211,95 +167,102 @@ function pararCamera(){
 
 function fechar(){
   pararCamera();
-
   try{
-    if(window.opener && !window.opener.closed){
-      window.close();
-    }else{
-      history.back();
-    }
-  }catch(e){
-    history.back();
-  }
+    if(window.opener && !window.opener.closed) window.close();
+    else history.back();
+  }catch(e){ history.back(); }
 }
 
 function normalizarPlaca(texto){
-  return String(texto || "")
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g,"")
-    .trim();
+  return String(texto || "").toUpperCase().replace(/[^A-Z0-9]/g,"").trim();
 }
 
 function extrairPlaca(texto){
   const limpo = normalizarPlaca(texto);
-
-  // Formato Mercosul: ABC1D23
   const mercosul = limpo.match(/[A-Z]{3}[0-9][A-Z][0-9]{2}/g);
-
-  // Formato antigo: ABC1234
   const antigo = limpo.match(/[A-Z]{3}[0-9]{4}/g);
-
   if(mercosul && mercosul.length) return mercosul[0];
   if(antigo && antigo.length) return antigo[0];
-
-  // Tenta qualquer bloco de 7 caracteres alfanuméricos
-  const blocos = limpo.match(/[A-Z0-9]{7}/g) || [];
-
-  for(const bloco of blocos){
-    const letras = (bloco.match(/[A-Z]/g) || []).length;
-    const numeros = (bloco.match(/[0-9]/g) || []).length;
-
-    if(letras >= 2 && numeros >= 2){
-      return bloco;
-    }
-  }
-
-  return limpo.slice(0,8);
+  return "";
 }
 
-function prepararImagem(){
-  if(!video.videoWidth || !video.videoHeight) return null;
-
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-
-  // Recorte aproximado da área vermelha central.
-  const cropWidth = Math.floor(vw * 0.82);
-  const cropHeight = Math.floor(cropWidth / 2.5);
-
-  const sx = Math.max(0, Math.floor((vw - cropWidth) / 2));
-  const sy = Math.max(0, Math.floor((vh - cropHeight) / 2));
-
+function canvasProcessado(source, sx, sy, sw, sh, largura, altura){
   const canvas = document.createElement("canvas");
-
-  // Amplia a imagem para ajudar o OCR.
-  canvas.width = 1400;
-  canvas.height = Math.round(1400 / 2.5);
-
+  canvas.width = largura;
+  canvas.height = altura;
   const ctx = canvas.getContext("2d", {willReadFrequently:true});
+  ctx.drawImage(source, sx, sy, sw, sh, 0, 0, largura, altura);
 
-  ctx.drawImage(
-    video,
-    sx, sy, cropWidth, cropHeight,
-    0, 0, canvas.width, canvas.height
-  );
-
-  // Pré-processamento simples para placa.
-  const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const imageData = ctx.getImageData(0,0,largura,altura);
   const data = imageData.data;
-
   for(let i=0;i<data.length;i+=4){
     const gray = (data[i]*0.299) + (data[i+1]*0.587) + (data[i+2]*0.114);
     const contrast = Math.max(0,Math.min(255,(gray-128)*1.7+128));
+    data[i]=contrast;
+    data[i+1]=contrast;
+    data[i+2]=contrast;
+  }
+  ctx.putImageData(imageData,0,0);
+  return canvas;
+}
 
-    data[i] = contrast;
-    data[i+1] = contrast;
-    data[i+2] = contrast;
+function prepararImagens(){
+  if(!video.videoWidth || !video.videoHeight) return [];
+
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  const imagens = [];
+
+  // Enquadramento horizontal para carros.
+  {
+    const cropWidth = Math.floor(vw * 0.90);
+    const cropHeight = Math.floor(vh * 0.48);
+    const sx = Math.max(0,Math.floor((vw-cropWidth)/2));
+    const sy = Math.max(0,Math.floor((vh-cropHeight)/2));
+    imagens.push({nome:"carro",canvas:canvasProcessado(video,sx,sy,cropWidth,cropHeight,1400,500)});
   }
 
-  ctx.putImageData(imageData,0,0);
+  // Enquadramento mais alto/quadrado para placas de moto.
+  {
+    const cropWidth = Math.floor(vw * 0.72);
+    const cropHeight = Math.floor(vh * 0.78);
+    const sx = Math.max(0,Math.floor((vw-cropWidth)/2));
+    const sy = Math.max(0,Math.floor((vh-cropHeight)/2));
+    imagens.push({nome:"moto",canvas:canvasProcessado(video,sx,sy,cropWidth,cropHeight,1000,850)});
+  }
 
-  return canvas;
+  return imagens;
+}
+
+async function criarWorker(){
+  if(worker) return worker;
+
+  worker = await Tesseract.createWorker("eng",1,{
+    logger: info => {
+      if(info && info.status === "recognizing text" && typeof info.progress === "number"){
+        const pct = Math.round(info.progress * 45);
+        progressBar.style.width = Math.max(30,Math.min(90,30+pct)) + "%";
+      }
+    }
+  });
+
+  await worker.setParameters({
+    tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    preserve_interword_spaces:"0"
+  });
+
+  return worker;
+}
+
+async function lerImagem(item, psm){
+  const ocrWorker = await criarWorker();
+  await ocrWorker.setParameters({
+    tessedit_pageseg_mode:String(psm),
+    tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    preserve_interword_spaces:"0"
+  });
+  const resultado = await ocrWorker.recognize(item.canvas);
+  return resultado && resultado.data ? String(resultado.data.text || "") : "";
 }
 
 async function capturar(){
@@ -312,75 +275,95 @@ async function capturar(){
 
   trabalhando = true;
   esconderMensagem();
+  confirmBox.classList.remove("show");
   processing.classList.add("show");
-  progressBar.style.width = "15%";
+  progressBar.style.width = "10%";
   processingText.textContent = "Preparando a imagem...";
 
   try{
-    const canvas = prepararImagem();
+    if(typeof Tesseract === "undefined") throw new Error("O mecanismo de leitura não foi carregado.");
 
-    if(!canvas){
-      throw new Error("Não foi possível capturar a imagem.");
-    }
+    const imagens = prepararImagens();
+    if(!imagens.length) throw new Error("Não foi possível capturar a imagem.");
 
-    progressBar.style.width = "30%";
-    processingText.textContent = "Lendo caracteres da placa...";
+    progressBar.style.width = "25%";
+    processingText.textContent = "Testando placa de carro e placa de moto...";
 
-    if(typeof Tesseract === "undefined"){
-      throw new Error("O mecanismo de leitura não foi carregado.");
-    }
+    const resultados = [];
 
-    const resultado = await Tesseract.recognize(
-      canvas,
-      "eng",
-      {
-        logger: info => {
-          if(info.status === "recognizing text" && typeof info.progress === "number"){
-            const pct = Math.round(info.progress * 60);
-            progressBar.style.width = Math.max(30,Math.min(90,30+pct)) + "%";
-          }
+    for(const imagem of imagens){
+      try{
+        const psm = imagem.nome === "moto" ? Tesseract.PSM.SINGLE_BLOCK : Tesseract.PSM.SINGLE_LINE;
+        const texto = await lerImagem(imagem,psm);
+        resultados.push(texto);
+        const placa = extrairPlaca(texto);
+        if(placa){
+          progressBar.style.width = "100%";
+          plateInput.value = placa;
+          confirmSub.textContent = "Confira a leitura antes de consultar o cadastro.";
+          processing.classList.remove("show");
+          confirmBox.classList.add("show");
+          trabalhando = false;
+          return;
         }
+      }catch(e){
+        console.warn("Falha em uma tentativa de OCR:",e);
       }
-    );
-
-    const texto = resultado && resultado.data ? resultado.data.text : "";
-    const placa = extrairPlaca(texto);
-
-    progressBar.style.width = "100%";
-
-    if(!placa || placa.length < 7){
-      processing.classList.remove("show");
-      trabalhando = false;
-      mostrarMensagem("Não consegui identificar a placa. Aproxime o celular, deixe a placa dentro da área vermelha e tente novamente.");
-      return;
     }
 
-    plateInput.value = placa.slice(0,8);
+    // Segunda tentativa com bloco único na imagem da moto, útil para placas quadradas.
+    const moto = imagens.find(x => x.nome === "moto");
+    if(moto){
+      try{
+        processingText.textContent = "Tentando outra leitura...";
+        progressBar.style.width = "65%";
+        const texto = await lerImagem(moto,Tesseract.PSM.SPARSE_TEXT);
+        resultados.push(texto);
+        const placa = extrairPlaca(texto);
+        if(placa){
+          progressBar.style.width = "100%";
+          plateInput.value = placa;
+          confirmSub.textContent = "Confira a leitura antes de consultar o cadastro.";
+          processing.classList.remove("show");
+          confirmBox.classList.add("show");
+          trabalhando = false;
+          return;
+        }
+      }catch(e){
+        console.warn("Falha na segunda tentativa:",e);
+      }
+    }
+
     processing.classList.remove("show");
+    plateInput.value = "";
+    confirmSub.textContent = "A leitura automática não identificou a placa. Digite a placa manualmente e confirme.";
     confirmBox.classList.add("show");
+    plateInput.focus();
     trabalhando = false;
 
   }catch(error){
     console.error("Erro no OCR:",error);
-
     processing.classList.remove("show");
+    plateInput.value = "";
+    confirmSub.textContent = "Não foi possível identificar automaticamente. Digite a placa manualmente e confirme.";
+    confirmBox.classList.add("show");
+    plateInput.focus();
     trabalhando = false;
-
-    mostrarMensagem("Não foi possível ler a placa. Tente novamente com a placa bem iluminada e centralizada.");
   }
 }
 
 function refazer(){
   confirmBox.classList.remove("show");
   plateInput.value = "";
+  confirmSub.textContent = "Confira a leitura antes de consultar o cadastro. Se não for identificada, digite manualmente.";
   esconderMensagem();
 }
 
 function enviarPlaca(){
   const placa = normalizarPlaca(plateInput.value);
 
-  if(!/^[A-Z0-9]{7,8}$/.test(placa)){
-    mostrarMensagem("Informe uma placa válida.");
+  if(!/^(?:[A-Z]{3}[0-9][A-Z][0-9]{2}|[A-Z]{3}[0-9]{4})$/.test(placa)){
+    mostrarMensagem("Informe uma placa válida: ABC1D23 ou ABC1234.");
     return;
   }
 
@@ -392,10 +375,7 @@ function enviarPlaca(){
     },"*");
 
     pararCamera();
-
-    setTimeout(function(){
-      try{ window.close(); }catch(e){}
-    },150);
+    setTimeout(function(){try{window.close();}catch(e){}},150);
   }else{
     plateInput.value = placa;
     mostrarMensagem("Janela principal não encontrada. Use a placa acima no aplicativo.");
